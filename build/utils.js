@@ -3,6 +3,21 @@ const path = require('path')
 const config = require('../config')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const packageConfig = require('../package.json')
+const glob = require('glob')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const PAGE_PATH = path.resolve(__dirname, '../src/pages')
+const merge = require('webpack-merge')
+
+//多入口文件处理
+exports.entries = function() {
+  const entryFiles = glob.sync(PAGE_PATH + '/*/*.js')
+  let map = {}
+  entryFiles.forEach((filePath) => {
+    let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
+    map[filename] = filePath
+  })
+  return map
+}
 
 exports.assetsPath = function (_path) {
   const assetsSubDirectory = process.env.NODE_ENV === 'production'
