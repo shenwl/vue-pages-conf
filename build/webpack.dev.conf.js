@@ -50,7 +50,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     //   template: 'index.html',
     //   inject: true
     // }),
-  ].concat(utils.htmlPlugin)
+  ].concat(utils.htmlPlugin())
 })
 
 module.exports = new Promise((resolve, reject) => {
