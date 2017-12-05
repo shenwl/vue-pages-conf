@@ -8,9 +8,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const PAGE_PATH = path.resolve(__dirname, '../src/pages')
 const merge = require('webpack-merge')
 
-//多入口文件处理
+//多页面入口文件配置
 exports.entries = function() {
-  const entryFiles = glob.sync(PAGE_PATH + '/*/*.js')
+  let entryFiles = glob.sync(PAGE_PATH + '/*/*.js')
   let map = {}
   entryFiles.forEach((filePath) => {
     let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
@@ -18,6 +18,35 @@ exports.entries = function() {
   })
   return map
 }
+
+//多页面的输出配置
+exports.htmlPlugin = function() {
+  let entryHtml = glob.sync(PAGE_PATH + '/*/*.html')
+  let arr = []
+  entryHtml.forEach((filePath) => {
+    let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
+    let conf = {
+      template: filePath,
+      filename: filename + '.html',
+      inject: true
+    }
+    //dev 与 prod环境下处理不一样
+    if(process.env.NODE_ENV === 'production') {
+      conf = merge(conf, {
+        chunks: ['manifest', 'vendor', filename],
+        minify: {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeAttributeQuotes: true
+        },
+        chunksSortMode: 'dependency'
+      })
+    }
+    arr.push(new HtmlWebpackPlugin(conf))
+  })
+  return arr
+}
+
 
 exports.assetsPath = function (_path) {
   const assetsSubDirectory = process.env.NODE_ENV === 'production'
